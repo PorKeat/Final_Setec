@@ -182,8 +182,11 @@
       let due = document.getElementById("due");
       recipe_data = JSON.parse(recipe_data);
       total.innerText = recipe_data.total.toFixed(2) + " $";
-      received.innerText =
-        parseFloat(recipe_data.reveiced_amount).toFixed(2) + " $";
+      received.innerText = isNaN(
+        parseFloat(recipe_data.reveiced_amount).toFixed(2)
+      )
+        ? "0 $"
+        : parseFloat(recipe_data.reveiced_amount).toFixed(2) + " $";
       recipe_data.selected_product_arr.forEach((product) => {
         let tr = document.createElement("tr");
         tr.innerHTML = `

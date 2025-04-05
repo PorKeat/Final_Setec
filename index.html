@@ -142,7 +142,9 @@
                     <tr class="text-center">
                       <td colspan="6" class="py-3">No Product Selected</td>
                     </tr>`;
+          received_amount_input.classList.add("hidden");
         } else {
+          received_amount_input.classList.remove("hidden");
           selected_product_arr.forEach((product, index) => {
             let new_tr = document.createElement("tr");
             new_tr.classList.add(
@@ -237,7 +239,10 @@
 
       function payNow() {
         let reveiced_amount = received_amount_input.value;
-        if (parseFloat(reveiced_amount) < total) {
+        if (
+          parseFloat(reveiced_amount) < parseFloat(total) ||
+          !reveiced_amount
+        ) {
           Swal.fire({
             icon: "error",
             title: "Oops...",
