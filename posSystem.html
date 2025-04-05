@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>POS System</title>
+  </head>
+  <body>
+    <main class="w-full">
+      <section class="flex flex-col md:flex-row h-[200vh]">
+        <!-- Product -->
+        <div class="w-[65%] bg-[#6C757D] text-white overflow-y-auto h-full">
+          <div class="w-[90%] mx-auto">
+            <h1 class="text-3xl font-bold text-center my-4">Product</h1>
+            <hr class="text-gray-300 mb-10" />
+            <div
+              id="productCardList"
+              class="grid grid-cols-3 gap-y-7 place-items-center justify-center"
+            ></div>
+          </div>
+        </div>
+        <!-- Order Details -->
+        <div class="w-[37%] bg-white text-black h-screen fixed top-0 right-0">
+          <h2 class="text-3xl font-bold text-center my-4">Order Details</h2>
+          <hr class="w-[90%] mx-auto text-gray-300" />
+          <div
+            class="flex-1 p-4 overflow-y-auto h-[50%] bg-gray-100 rounded w-[90%] mx-auto mt-4"
+          >
+            <div class="lg:col-span-7 sm:col-span-12">
+              <div class="bg-gray-100 p-3">
+                <div class="max-h-[368px] overflow-y-auto">
+                  <table class="w-full table-fixed" id="selected_product">
+                    <thead class="bg-gray-100 sticky top-0 z-20 h-[40px]">
+                      <tr>
+                        <th class="w-[5%] text-center">#</th>
+                        <th class="w-[7%] text-center">Product</th>
+                        <th class="w-[5%] text-center">Quantity</th>
+                        <th class="w-[5%] text-center">Price</th>
+                        <th class="w-[7%] text-center">Sub Total</th>
+                        <th class="w-[5%] text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="w-[90%] mx-auto mt-4 flex flex-col gap-3">
+            <h3 class="text-xl font-bold flex justify-between">
+              Total ($):
+              <span id="total_label" class="text-blue-600"></span>
+            </h3>
+            <h3 class="text-xl font-bold flex justify-between">
+              Total (៛):
+              <span id="total_label_riel" class="text-blue-600"></span>
+            </h3>
+            <div id="change_div" class="hidden flex flex-col gap-3">
+              <h3 class="text-xl font-bold flex justify-between">
+                Received ($):
+                <span id="received_label" class="text-green-600"></span>
+              </h3>
+              <h3 class="text-xl font-bold flex justify-between">
+                Received (៛):
+                <span id="received_label_riel" class="text-green-600"></span>
+              </h3>
+            </div>
+            <input
+              type="number"
+              id="received_amount_input"
+              placeholder="Enter received amount"
+              class="w-full p-2 border border-gray-300 rounded-lg"
+              onkeyup="calculateChangeAmount()"
+            />
+          </div>
+          <div class="flex justify-between mt-4 w-[90%] mx-auto">
+            <button
+              class="px-6 py-2 bg-red-600 text-white rounded-lg font-bold text-center"
+              onclick="clearProduct()"
+            >
+              Clear 🗑️
+            </button>
+            <button
+              class="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold text-center"
+              onclick="payNow()"
+            >
+              Pay 💸
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      let productList = localStorage.getItem("productList")
+        ? JSON.parse(localStorage.getItem("productList"))
+        : [];
+      console.log(productList);
+      let productCardList = document.getElementById("productCardList");
+      let selected_product = document.querySelector("#selected_product tbody");
+      let selected_product_arr = sessionStorage.getItem("selectedProductList")
+        ? JSON.parse(sessionStorage.getItem("selectedProductList"))
+        : [];
+      let total_label = document.getElementById("total_label");
+      let total_label_riel = document.getElementById("total_label_riel");
+      let received_amount_input = document.getElementById(
+        "received_amount_input"
+      );
+      let total = 0;
+      let change = 0;
+      let riel = 4100;
+
+      renderProductCard();
+      renderSelectedProduct();
+
+      function renderProductCard() {
+        productCardList.innerHTML = "";
+        productList.forEach((product, index) => {
+          let productCard = document.createElement("div");
+          productCard.innerHTML += `
+                        <div onclick="onSelectedProductCard(${index})" class="bg-white cursor-pointer select-none rounded-lg shadow-md overflow-hidden w-[90%] h-full p-2">
+                          <img
+                            src="${product.image}"
+                            alt="${product.name}"
+                            class="w-full h-[75%] object-cover rounded-md flex justify-center items-center"
+                          />
+                          <div class="py-4">
+                            <h3 class="text-lg font-bold text-gray-900">${product.name}</h3>
+                            <p class="text-blue-600 font-bold">${product.price}$</p>
+                          </div>
+                        </div>
+                        `;
+          productCardList.appendChild(productCard);
+        });
+      }
+
+      function renderSelectedProduct() {
+        selected_product.innerHTML = "";
+        if (selected_product_arr.length == 0) {
+          selected_product.innerHTML = `
+                    <tr class="text-center">
+                      <td colspan="6" class="py-3">No Product Selected</td>
+                    </tr>`;
+          received_amount_input.classList.add("hidden");
+        } else {
+          received_amount_input.classList.remove("hidden");
+          selected_product_arr.forEach((product, index) => {
+            let new_tr = document.createElement("tr");
+            new_tr.classList.add(
+              "border-b",
+              "border-gray-300",
+              "hover:bg-gray-200"
+            );
+            new_tr.innerHTML = `
+                      <td class="text-center py-3">${index + 1}</td>
+                      <td class="text-center py-3">${product.name}</td>
+                      <td class="text-center py-3 cursor-pointer" onclick="updateQty(${index})">${
+              product.qty
+            }</td>
+                      <td class="text-center py-3">${product.price} $</td>
+                      <td class="text-center py-3">${product.sub_total} $</td>
+                      <td class="text-center py-3">
+                          <button class="text-white text-sm px-3 py-1 cursor-pointer" onclick="deleteProduct(${index})">❌</button>
+                      </td>
+                      `;
+            selected_product.appendChild(new_tr);
+          });
+        }
+        sessionStorage.setItem(
+          "selectedProductList",
+          JSON.stringify(selected_product_arr)
+        );
+        calculateChangeAmount();
+        calculateTotal();
+      }
+
+      function onSelectedProductCard(index) {
+        let current_pro = productList[index];
+        let dpl_pro = selected_product_arr.find((item) => {
+          return item.name == current_pro.name;
+        });
+        if (dpl_pro) {
+          dpl_pro.qty++;
+          dpl_pro.sub_total = (
+            parseFloat(dpl_pro.price) * parseFloat(dpl_pro.qty)
+          ).toFixed(2);
+        } else {
+          current_pro.qty = 1;
+          current_pro.sub_total = parseFloat(current_pro.price).toFixed(2);
+          selected_product_arr.push(current_pro);
+        }
+        renderSelectedProduct();
+      }
+
+      function deleteProduct(index) {
+        if (selected_product_arr[index].qty > 1) {
+          selected_product_arr[index].qty--;
+          selected_product_arr[index].sub_total = (
+            parseFloat(selected_product_arr[index].price) *
+            parseFloat(selected_product_arr[index].qty)
+          ).toFixed(2);
+        } else {
+          selected_product_arr.splice(index, 1);
+        }
+        renderSelectedProduct();
+      }
+
+      function calculateTotal() {
+        total = 0;
+        selected_product_arr.forEach((item) => {
+          total += parseFloat(item.sub_total);
+        });
+        total_label.innerText = total.toFixed(2) + " $";
+        total_label_riel.innerText = (total * riel).toLocaleString() + " ៛";
+      }
+
+      function clearProduct() {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#cecece",
+          confirmButtonText: "Yes, Clear it!",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            sessionStorage.removeItem("selectedProductList");
+            selected_product_arr = [];
+            renderSelectedProduct();
+            calculateTotal();
+            change = 0;
+            document.getElementById("change_div").classList.add("hidden");
+            received_amount_input.value = "";
+          }
+        });
+      }
+
+      function payNow() {
+        let reveiced_amount = received_amount_input.value;
+        if (
+          parseFloat(reveiced_amount) < parseFloat(total) ||
+          !reveiced_amount
+        ) {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Received amount is not enough!",
+          });
+        } else {
+          let width = 600;
+          let height = 600;
+          let left = (window.screen.width - width) / 2;
+          let top = (window.screen.height - height) / 2;
+          localStorage.setItem(
+            "recipe_data",
+            JSON.stringify({
+              selected_product_arr,
+              total,
+              reveiced_amount,
+              change,
+            })
+          );
+          sessionStorage.removeItem("selectedProductList");
+
+          window.open(
+            "recipe.html",
+            "_blank",
+            `width=${width},height=${height}, left=${left},top=${top}`
+          );
+        }
+      }
+
+      function calculateChangeAmount() {
+        let received = received_amount_input.value;
+        change = received - total;
+        let received_label = document.getElementById("received_label");
+        let received_label_riel = document.getElementById(
+          "received_label_riel"
+        );
+
+        let change_div = document.getElementById("change_div");
+        if (change > 0) {
+          change_div.classList.remove("hidden");
+          received_label.innerText = change.toFixed(2) + " $";
+          received_label_riel.innerText =
+            (change * riel).toLocaleString() + " ៛";
+        } else {
+          change_div.classList.add("hidden");
+        }
+      }
+
+      function updateQty(index) {
+        let current_pro = selected_product_arr[index];
+        Swal.fire({
+          title: "Update Quantity",
+          text: `Current Quantity: ${current_pro.name}`,
+          input: "number",
+          inputPlaceholder: "Enter the quantity",
+          inputValue: current_pro.qty,
+          inputAttributes: {
+            min: 1,
+            step: 1,
+          },
+          showCancelButton: true,
+          confirmButtonText: "Update",
+          cancelButtonText: "Close",
+          customClass: {
+            confirmButton:
+              "swal2-confirm bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mr-2 cursor-pointer",
+            cancelButton:
+              "swal2-cancel bg-red-600 text-white font-bold py-2 px-4 rounded-lg cursor-pointer",
+          },
+          buttonsStyling: false,
+        }).then((result) => {
+          if (result.isConfirmed && result.value) {
+            Swal.fire(`Entered Quantity: ${result.value}`);
+            current_pro.qty = result.value;
+            current_pro.sub_total = (
+              parseFloat(current_pro.price) * result.value
+            ).toFixed(2);
+            renderSelectedProduct();
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

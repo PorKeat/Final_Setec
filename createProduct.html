@@ -26,8 +26,13 @@
                 <label for="inputImage" class="mt-2">Product Image</label>
                 <input type="text" class="form-control" id="inputImage" />
               </div>
-              <button id="btnSave" class="btn btn-primary">Save</button>
-              <button id="btnCancel" class="btn btn-danger">Cancel</button>
+              <div class="d-flex justify-content-between mt-3">
+                <div>
+                  <button id="btnSave" class="btn btn-primary">Save</button>
+                  <button id="btnCancel" class="btn btn-danger">Cancel</button>
+                </div>
+                <button id="btnOrder" class="btn btn-success" type="button">Order 🖥️</button>
+              </div>
             </form>
           </div>
         </div>
@@ -67,10 +72,15 @@
     let btnCancel = document.getElementById("btnCancel");
     let productList = getProductList();
     let globalIndex = null;
+    let btnOrder = document.getElementById("btnOrder");
 
     renderProduct();
 
-    btnSave.addEventListener("click", function (e) {
+    btnOrder.addEventListener("click", function () {
+      window.location.href = "posSystem.html";
+    });
+
+    btnSave.addEventListener("click", function () {
       let name = inputName.value;
       let cost = inputCost.value;
       let price = inputPrice.value;
@@ -192,6 +202,5 @@
       btnSave.innerText = "Update";
       console.log(product);
     }
-  
   </script>
 </html>
