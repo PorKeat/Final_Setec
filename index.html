@@ -249,13 +249,10 @@
             text: "Received amount is not enough!",
           });
         } else {
-          Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: `Change: ${change.toFixed(2)} $ | ${(
-              change * riel
-            ).toLocaleString()} ៛`,
-          });
+          let width = 600;
+          let height = 600;
+          let left = (window.screen.width - width) / 2;
+          let top = (window.screen.height - height) / 2;
           localStorage.setItem(
             "recipe_data",
             JSON.stringify({
@@ -266,6 +263,12 @@
             })
           );
           sessionStorage.removeItem("selectedProductList");
+
+          window.open(
+            "recipe.html",
+            "_blank",
+            `width=${width},height=${height}, left=${left},top=${top}`
+          );
         }
       }
 
