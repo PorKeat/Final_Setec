@@ -13,7 +13,7 @@
     <main class="container">
       <section class="row mt-5 mx-0">
         <!-- Create Product -->
-        <div class="col-lg-4 col-sm-12font-weight-bold">
+        <div class="col-lg-4 col-sm-12 font-weight-bold">
           <div class="bg-light p-3 rounded">
             <form action="#">
               <div class="form-group">
@@ -34,19 +34,24 @@
         <!-- Table Product -->
         <div class="col-lg-7 col-sm-12">
           <div class="bg-light p-3 rounded">
-            <table class="table" id="renderProduct">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Image</th>
-                  <th scope="col">Product</th>
-                  <th scope="col">Cost</th>
-                  <th scope="col">Price</th>
-                  <th scope="col">Action</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+            <div style="max-height: 368px; overflow-y: auto">
+              <table class="table" id="renderProduct">
+                <thead
+                  class="bg-light"
+                  style="position: sticky; top: -0.9px; z-index: 20"
+                >
+                  <tr style="width: 100%">
+                    <th scope="col">#</th>
+                    <th scope="col">Image</th>
+                    <th scope="col">Product</th>
+                    <th scope="col">Cost</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
