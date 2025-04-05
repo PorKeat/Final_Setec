@@ -116,9 +116,9 @@
                 </td>
 
                 <td>
-                  Invoice #: 123<br />
-                  Created: January 1, 2023<br />
-                  Due: February 1, 2023
+                  Invoice #: <span id="invoice"></span><br />
+                  Created: <span id="date"></span><br />
+                  Due: <span id="due"></span>
                 </td>
               </tr>
             </table>
@@ -154,7 +154,7 @@
         <tr class="details">
           <td>Check</td>
 
-          <td>1000</td>
+          <td id="received"></td>
         </tr>
 
         <tr class="heading">
@@ -163,30 +163,53 @@
           <td>Price</td>
         </tr>
 
-        <tr class="item">
-          <td>Website design</td>
-
-          <td>$300.00</td>
-        </tr>
-
-        <tr class="item">
-          <td>Hosting (3 months)</td>
-
-          <td>$75.00</td>
-        </tr>
-
-        <tr class="item last">
-          <td>Domain name (1 year)</td>
-
-          <td>$10.00</td>
-        </tr>
+        <tbody id="renderProduct"></tbody>
 
         <tr class="total">
           <td></td>
 
-          <td>Total: $385.00</td>
+          <td>Total: <span id="total"></span></td>
         </tr>
       </table>
     </div>
+    <script>
+      let recipe_data = localStorage.getItem("recipe_data") || "{}";
+      let total = document.getElementById("total");
+      let received = document.getElementById("received");
+      let renderProduct = document.getElementById("renderProduct");
+      let invoice = document.getElementById("invoice");
+      let date = document.getElementById("date");
+      let due = document.getElementById("due");
+      recipe_data = JSON.parse(recipe_data);
+      total.innerText = recipe_data.total.toFixed(2) + " $";
+      received.innerText =
+        parseFloat(recipe_data.reveiced_amount).toFixed(2) + " $";
+      recipe_data.selected_product_arr.forEach((product) => {
+        let tr = document.createElement("tr");
+        tr.innerHTML = `
+          <tr class="item">
+            <td>${product.name}</td>
+            <td>${parseFloat(product.price).toFixed(2)} $</td>
+          </tr>
+        `;
+        renderProduct.appendChild(tr);
+      });
+      invoice.innerText = Math.floor(Math.random() * 100) + 1000;
+      let now = new Date();
+      date.innerText = now.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+      now.setDate(now.getDate() + 15);
+      now.setMonth(now.getMonth() + 1);
+      due.innerText = now.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+
+      console.log(recipe_data);
+    </script>
   </body>
 </html>

@@ -145,6 +145,11 @@
         } else {
           selected_product_arr.forEach((product, index) => {
             let new_tr = document.createElement("tr");
+            new_tr.classList.add(
+              "border-b",
+              "border-gray-300",
+              "hover:bg-gray-200"
+            );
             new_tr.innerHTML = `
                       <td class="text-center py-3">${index + 1}</td>
                       <td class="text-center py-3">${product.name}</td>
@@ -246,6 +251,16 @@
               change * riel
             ).toLocaleString()} ៛`,
           });
+          localStorage.setItem(
+            "recipe_data",
+            JSON.stringify({
+              selected_product_arr,
+              total,
+              reveiced_amount,
+              change,
+            })
+          );
+          sessionStorage.removeItem("selectedProductList");
         }
       }
 
@@ -301,8 +316,6 @@
           }
         });
       }
-    
-    
     </script>
   </body>
 </html>
